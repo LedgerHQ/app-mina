@@ -715,6 +715,16 @@ bool sign(Signature *sig, const Keypair *kp, const ROInput *input, const uint8_t
     Scalar tmp;
     bool error = false;
 
+    for (size_t i = 0; i < input->fields_len; i++) {
+        Field be;
+        for (size_t j = 0; j < FIELD_BYTES; j++) {
+            be[j] = input->fields[i][FIELD_BYTES - 1 - j];
+        }
+        if (memcmp(be, FIELD_MODULUS, FIELD_BYTES) >= 0) {
+            return false;
+        }
+    }
+
     BEGIN_TRY {
         TRY {
             // k = message_derive(input.fields + kp.pub + input.bits + kp.priv)
